@@ -15,9 +15,9 @@ public static class AuthGatewayEndpoints
             "The Authentication API acts as a central entry point for managing user identity and access control.");
 
         group.MapPost("/login", Login);
-        group.MapPost("/refresh", RefreshToken);
         group.MapPost("/Logout", Logout);
-        group.MapGet("/validate", ValidateToken);
+        //group.MapPost("/refresh", RefreshToken);
+        //group.MapGet("/validate", ValidateToken);
         group.MapGet("/me", GetCurrentUser);
     }
 
@@ -25,9 +25,9 @@ public static class AuthGatewayEndpoints
 
     private static IResult RefreshToken() => Results.Ok();
 
-    private static IResult Logout() => Results.Ok();
-
     private static IResult ValidateToken() => Results.Ok();
+
+    private static IResult Logout() => Results.Ok();
 
     private static IResult GetCurrentUser() => Results.Ok();
 }
