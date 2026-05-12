@@ -1,6 +1,6 @@
 ﻿namespace Auth.Gateway.Dtos;
 
-public class CreateUserRequest
+public sealed record CreateUserRequest
 (
     string Email,
     string Role

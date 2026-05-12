@@ -1,5 +1,6 @@
 ﻿using Auth.Gateway.Dtos;
 using Microsoft.Net.Http.Headers;
+using System.Net;
 using System.Text;
 using System.Text.Json;
 using SameSiteMode = Microsoft.AspNetCore.Http.SameSiteMode;
@@ -9,6 +10,7 @@ namespace Auth.Gateway.Endpoints;
 public static class AuthGatewayEndpoints
 {
     private const string IdentityHttpClientName = "IdentityApi";
+    private const string EmailVerificationHttpClientName = "EmailVerificationApi";
     private const string RequestIdHeaderName = "Request-ID";
 
     public static void MapAuthGatewayEndpoints(this WebApplication app)
@@ -18,6 +20,7 @@ public static class AuthGatewayEndpoints
             .WithDescription(
                 "Authentication gateway that forwards requests to the Identity API.");
 
+        group.MapPost("/login/start", StartLogin);
         group.MapPost("/login", Login);
         group.MapPost("/logout", Logout);
         group.MapPost("/create", CreateUser);
@@ -25,13 +28,71 @@ public static class AuthGatewayEndpoints
 
     private const string RefreshTokenCookieName = "refreshToken"; // Måste ändras till rätt namn när token service är klar
 
-    private static Task<IResult> Login(IHttpClientFactory factory, HttpContext context, LoginRequest request, CancellationToken ct)
-        => ForwardJsonAsync(factory, context, HttpMethod.Post, "/api/auth/login", request, ct);
+    private static async Task<IResult> StartLogin(IHttpClientFactory factory, HttpContext context, StartLoginRequest request, CancellationToken ct)
+    {
+        var confirmed = await CheckEmailConfirmedAsync(factory, context, request.Email, ct);
+
+        if (confirmed is null)
+        {
+            return Results.Problem("Email verification service failed.", statusCode: StatusCodes.Status502BadGateway);
+        }
+
+        // StartLogin är UI-steg: returnera statusen så frontend kan visa nästa steg eller felmeddelande
+        return Results.Ok(new StartLoginResponse(request.Email, confirmed.Value));
+    }
+
+    private static async Task<IResult> Login(IHttpClientFactory factory, HttpContext context, LoginRequest request, CancellationToken ct)
+    {
+        var confirmed = await CheckEmailConfirmedAsync(factory, context, request.Email, ct);
+
+        if (confirmed is null)
+        {
+            return Results.Problem("Email verification service failed.", statusCode: StatusCodes.Status502BadGateway);
+        }
+
+        if (confirmed.Value is false)
+        {
+            // Samma idé som i ert Identity API (EmailNotConfirmed => Forbid)
+            return Results.Forbid();
+        }
+
+        // Email confirmed => fortsätt med “riktiga” login mot Identity API
+        return await ForwardJsonAsync(factory, context, HttpMethod.Post, "/api/auth/login", request, ct);
+    }
+
+    private static async Task<bool?> CheckEmailConfirmedAsync(IHttpClientFactory factory, HttpContext context, string email, CancellationToken ct)
+    {
+        var client = factory.CreateClient(EmailVerificationHttpClientName);
+
+        // TODO: uppdatera till er riktiga route i email verification-servicen
+        var upstreamPath = $"/api/email/status?email={Uri.EscapeDataString(email)}";
+
+        using var upstreamRequest = new HttpRequestMessage(HttpMethod.Get, upstreamPath);
+
+        // Forwarda bara request-id (så ni kan spåra i loggar)
+        if (context.Request.Headers.TryGetValue(RequestIdHeaderName, out var requestId))
+        {
+            _ = upstreamRequest.Headers.TryAddWithoutValidation(RequestIdHeaderName, requestId.ToString());
+        }
+
+        using var response = await client.SendAsync(upstreamRequest, ct);
+
+        if (response.StatusCode == HttpStatusCode.OK)
+        {
+            return true;
+        }
+
+        if (response.StatusCode == HttpStatusCode.NotFound)
+        {
+            return false;
+        }
+
+        // Något oväntat (500, 503, 401, etc) => behandla som upstream-fel
+        return null;
+    }
 
     private static IResult Logout(HttpContext context)
     {
-        // Raderar cookie för aktuell domän/path.
-        // För att Delete ska träffa rätt måste Path/Domain matcha hur cookien sattes.
         context.Response.Cookies.Delete(RefreshTokenCookieName, new CookieOptions
         {
             Path = "/",
@@ -73,16 +134,9 @@ public static class AuthGatewayEndpoints
 
         var statusCode = (int)upstreamResponse.StatusCode;
 
-        string? responseBody;
-
-        if (upstreamResponse.Content is null)
-        {
-            responseBody = null;
-        }
-        else
-        {
-            responseBody = await upstreamResponse.Content.ReadAsStringAsync(ct);
-        }
+        string? responseBody = upstreamResponse.Content is null
+            ? null
+            : await upstreamResponse.Content.ReadAsStringAsync(ct);
 
         if (string.IsNullOrWhiteSpace(responseBody))
         {
