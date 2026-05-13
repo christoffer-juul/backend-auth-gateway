@@ -15,7 +15,7 @@ builder.Services.AddOptions<IdentityApiOptions>()
     .ValidateDataAnnotations()
     .ValidateOnStart();
 
-builder.Services.AddHttpClient("IdentityApi", (sp, http) =>
+builder.Services.AddHttpClient<Auth.Gateway.Clients.IdentityApiClient>((sp, http) =>
 {
     var options = sp.GetRequiredService<IOptions<IdentityApiOptions>>().Value;
     http.BaseAddress = new Uri(options.BaseUrl, UriKind.Absolute);
@@ -27,7 +27,7 @@ builder.Services.AddOptions<EmailVerificationApiOptions>()
     .ValidateDataAnnotations()
     .ValidateOnStart();
 
-builder.Services.AddHttpClient("EmailVerificationApi", (sp, http) =>
+builder.Services.AddHttpClient<Auth.Gateway.Clients.EmailVerificationApiClient>((sp, http) =>
 {
     var options = sp.GetRequiredService<IOptions<EmailVerificationApiOptions>>().Value;
     http.BaseAddress = new Uri(options.BaseUrl, UriKind.Absolute);
