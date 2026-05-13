@@ -37,7 +37,6 @@ public static class AuthGatewayEndpoints
             return Results.Problem("Email verification service failed.", statusCode: StatusCodes.Status502BadGateway);
         }
 
-        // StartLogin är UI-steg: returnera statusen så frontend kan visa nästa steg eller felmeddelande
         return Results.Ok(new StartLoginResponse(request.Email, confirmed.Value));
     }
 
@@ -52,11 +51,9 @@ public static class AuthGatewayEndpoints
 
         if (confirmed.Value is false)
         {
-            // Samma idé som i ert Identity API (EmailNotConfirmed => Forbid)
-            return Results.Forbid();
+            //Skicka till servicebus så ett verification mail skickas ut
         }
 
-        // Email confirmed => fortsätt med “riktiga” login mot Identity API
         return await ForwardJsonAsync(factory, context, HttpMethod.Post, "/api/auth/login", request, ct);
     }
 
@@ -64,16 +61,10 @@ public static class AuthGatewayEndpoints
     {
         var client = factory.CreateClient(EmailVerificationHttpClientName);
 
-        // TODO: uppdatera till er riktiga route i email verification-servicen
+        // TODO: uppdatera till er riktiga route i identity-servicen
         var upstreamPath = $"/api/email/status?email={Uri.EscapeDataString(email)}";
 
         using var upstreamRequest = new HttpRequestMessage(HttpMethod.Get, upstreamPath);
-
-        // Forwarda bara request-id (så ni kan spåra i loggar)
-        if (context.Request.Headers.TryGetValue(RequestIdHeaderName, out var requestId))
-        {
-            _ = upstreamRequest.Headers.TryAddWithoutValidation(RequestIdHeaderName, requestId.ToString());
-        }
 
         using var response = await client.SendAsync(upstreamRequest, ct);
 
@@ -87,7 +78,6 @@ public static class AuthGatewayEndpoints
             return false;
         }
 
-        // Något oväntat (500, 503, 401, etc) => behandla som upstream-fel
         return null;
     }
 
