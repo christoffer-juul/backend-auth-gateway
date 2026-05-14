@@ -1,5 +1,7 @@
 ﻿using Auth.Gateway.Dtos;
-using Auth.Gateway.Helpers;
+using Auth.Gateway.Endpoints;
+using Auth.Gateway.Clients;
+using Azure.Messaging.ServiceBus;
 
 public static class LoginEndpoints
 {
@@ -11,7 +13,7 @@ public static class LoginEndpoints
         group.MapPost("/login", Login);
     }
 
-    private static async Task<IResult> StartLogin(Auth.Gateway.Clients.EmailVerificationApiClient emailClient, HttpContext context, StartLoginRequest request, CancellationToken ct)
+    private static async Task<IResult> StartLogin(EmailVerificationApiClient emailClient, HttpContext context, StartLoginRequest request, CancellationToken ct)
     {
         var confirmed = await emailClient.CheckEmailConfirmedAsync(request.Email, ct);
 
@@ -23,7 +25,7 @@ public static class LoginEndpoints
         return Results.Ok(new StartLoginResponse(request.Email, confirmed.Value));
     }
 
-    private static async Task<IResult> Login(Auth.Gateway.Clients.IdentityApiClient identityClient, Auth.Gateway.Clients.EmailVerificationApiClient emailClient, HttpContext context, LoginRequest request, CancellationToken ct)
+    private static async Task<IResult> Login(ServiceBusClient serviceBusClient, IConfiguration config, IdentityApiClient identityClient, EmailVerificationApiClient emailClient, HttpContext context, LoginRequest request, CancellationToken ct)
     {
         var confirmed = await emailClient.CheckEmailConfirmedAsync(request.Email, ct);
 
@@ -34,7 +36,11 @@ public static class LoginEndpoints
 
         if (confirmed.Value is false)
         {
-            //Skicka till servicebus så ett verification mail skickas ut
+            var verificationRequest = new RequestCodeRequest(request.Email);
+
+            await EmailVerificationEndpoints.RequestCode(serviceBusClient, verificationRequest, config, ct);
+
+            return Results.Forbid();
         }
 
         return await identityClient.ForwardJsonAsync(context, HttpMethod.Post, "/api/auth/login", request, ct);

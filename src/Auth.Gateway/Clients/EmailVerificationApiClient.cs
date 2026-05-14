@@ -13,7 +13,7 @@ public class EmailVerificationApiClient
 
     public async Task<bool?> CheckEmailConfirmedAsync(string email, CancellationToken ct)
     {
-        var upstreamPath = $"/api/email/status?email={Uri.EscapeDataString(email)}";
+        var upstreamPath = $"/api/auth/email-status?email={Uri.EscapeDataString(email)}";
 
         using var response = await _client.GetAsync(upstreamPath, ct);
 
@@ -22,7 +22,7 @@ public class EmailVerificationApiClient
             return true;
         }
 
-        if (response.StatusCode == HttpStatusCode.NotFound)
+        if (response.StatusCode == HttpStatusCode.Forbidden)
         {
             return false;
         }

@@ -9,4 +9,7 @@ public sealed class EmailVerificationApiOptions
     [Required]
     [Url]
     public required string BaseUrl { get; init; }
+
+    [Required]
+    public required string FunctionKey { get; init; }
 }
