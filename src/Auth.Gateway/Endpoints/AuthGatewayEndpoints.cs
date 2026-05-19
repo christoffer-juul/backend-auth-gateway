@@ -19,6 +19,7 @@ public static class AuthGatewayEndpoints
         app.MapLoginEndpoints();
         app.MapRegisterUserEndpoints();
         app.MapEmailVerificationEndpoints();
+        app.MapUserEndpoints();
         group.MapPost("/logout", Logout);
     }
 

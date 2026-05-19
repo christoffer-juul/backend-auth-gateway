@@ -100,4 +100,9 @@ public class IdentityApiClient
 
         return await _client.GetAsync(upstreamPath, ct);
     }
+
+    public async Task<IResult> SetPasswordAsync(HttpContext context, object body, CancellationToken ct)
+    {
+        return await ForwardJsonAsync(context, HttpMethod.Post, "/api/auth/gateway/set-password", body, ct);
+    }
 }

@@ -16,7 +16,14 @@ public static class LoginEndpoints
     {
         using var response = await identityClient.CheckEmailConfirmedAsync(request.Email, ct);
 
-        if (response.StatusCode == System.Net.HttpStatusCode.Forbidden)
+        string? responseBody = response.Content != null ? await response.Content.ReadAsStringAsync(ct) : null;
+
+        if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+        {
+            return Results.NotFound();
+        }
+
+        if (responseBody != null && responseBody.Contains(""" "confirmed":false """, StringComparison.OrdinalIgnoreCase))
         {
             var verificationRequest = new RequestCodeRequest(request.Email);
             await EmailVerificationEndpoints.RequestCode(serviceBusClient, verificationRequest, config, ct);

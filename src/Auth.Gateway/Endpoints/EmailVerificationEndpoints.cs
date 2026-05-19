@@ -12,24 +12,11 @@ public static partial class EmailVerificationEndpoints
 {
     public static void MapEmailVerificationEndpoints(this IEndpointRouteBuilder app)
     {
-        var group = app.MapGroup("/api/auth/email")
+        var group = app.MapGroup("/api")
             .WithTags("EmailVerification");
 
-        group.MapPost("/verify", VerifyEmail);
         group.MapPost("/request-code", RequestCode);
-        group.MapPost("/verify-code", VerifyCode);
-    }
-
-    private static async Task<IResult> VerifyEmail(IdentityApiClient identityClient, HttpContext context, VerifyEmailRequest request, CancellationToken ct)
-    {
-        using var response = await identityClient.CheckEmailConfirmedAsync(request.Email, ct);
-
-        if (!response.IsSuccessStatusCode)
-        {
-            return Results.StatusCode((int)response.StatusCode);
-        }
-
-        return Results.Ok(new VerifyEmailResponse(request.Email, true));
+        group.MapPost("/VerifyCode", VerifyCode);
     }
 
     public static async Task<IResult> RequestCode(ServiceBusClient serviceBusClient, [FromBody] RequestCodeRequest request, IConfiguration config, CancellationToken ct)
