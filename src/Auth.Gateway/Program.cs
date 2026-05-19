@@ -21,6 +21,11 @@ builder.Services.AddHttpClient<Auth.Gateway.Clients.IdentityApiClient>((sp, http
     var options = sp.GetRequiredService<IOptions<IdentityApiOptions>>().Value;
     http.BaseAddress = new Uri(options.BaseUrl, UriKind.Absolute);
     http.Timeout = TimeSpan.FromSeconds(30);
+
+    if (!string.IsNullOrEmpty(options.ApiKey))
+    {
+        http.DefaultRequestHeaders.Add("x-api-key", options.ApiKey);
+    }
 });
 
 builder.Services.AddOptions<EmailVerificationApiOptions>()

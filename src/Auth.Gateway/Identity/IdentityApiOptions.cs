@@ -9,4 +9,7 @@ public sealed class IdentityApiOptions
     [Required]
     [Url]
     public required string BaseUrl { get; init; }
+
+    [Required]
+    public required string ApiKey { get; init; }
 }
