@@ -11,10 +11,10 @@ public class EmailVerificationApiClient
         _client = client;
     }
 
-    public async Task<HttpResponseMessage> CheckEmailConfirmedAsync(string email, CancellationToken ct)
+    public async Task<HttpResponseMessage> VerifyCodeAsync(string email, string code, CancellationToken ct)
     {
-        var upstreamPath = $"/api/auth/email-status?email={Uri.EscapeDataString(email)}";
+        var upstreamPath = "/api/VerifyCode";
 
-        return await _client.GetAsync(upstreamPath, ct);
+        return await _client.PostAsJsonAsync(upstreamPath, new { email = email, code = code }, ct);
     }
 }

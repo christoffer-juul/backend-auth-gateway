@@ -12,9 +12,9 @@ public static class LoginEndpoints
         group.MapPost("/login", Login);
     }
 
-    private static async Task<IResult> Login(ServiceBusClient serviceBusClient, IConfiguration config, IdentityApiClient identityClient, EmailVerificationApiClient emailClient, HttpContext context, LoginRequest request, CancellationToken ct)
+    private static async Task<IResult> Login(ServiceBusClient serviceBusClient, IConfiguration config, IdentityApiClient identityClient, HttpContext context, LoginRequest request, CancellationToken ct)
     {
-        using var response = await emailClient.CheckEmailConfirmedAsync(request.Email, ct);
+        using var response = await identityClient.CheckEmailConfirmedAsync(request.Email, ct);
 
         if (response.StatusCode == System.Net.HttpStatusCode.Forbidden)
         {
