@@ -1,6 +1,6 @@
 namespace Auth.Gateway.Dtos;
 
-public sealed record StartLoginResponse
+public sealed record VerifyEmailResponse
 (
     string Email, 
     bool EmailConfirmed

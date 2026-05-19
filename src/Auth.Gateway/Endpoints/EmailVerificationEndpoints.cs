@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Text;
 using System.Text.Json;
 using Auth.Gateway.Clients;
+using Azure;
 
 namespace Auth.Gateway.Endpoints;
 
@@ -16,8 +17,21 @@ public static partial class EmailVerificationEndpoints
         var group = app.MapGroup("/api/auth/email")
             .WithTags("EmailVerification");
 
+        group.MapPost("/verify", VerifyEmail);
         group.MapPost("/request-code", RequestCode);
-        group.MapPost("/verify", VerifyCode);
+        group.MapPost("/verify-code", VerifyCode);
+    }
+
+    private static async Task<IResult> VerifyEmail(EmailVerificationApiClient emailClient, HttpContext context, VerifyEmailRequest request, CancellationToken ct)
+    {
+        using var response = await emailClient.CheckEmailConfirmedAsync(request.Email, ct);
+
+        if (!response.IsSuccessStatusCode)
+        {
+            return Results.StatusCode((int)response.StatusCode);
+        }
+
+        return Results.Ok(new VerifyEmailResponse(request.Email, true));
     }
 
     public static async Task<IResult> RequestCode(ServiceBusClient serviceBusClient, [FromBody] RequestCodeRequest request, IConfiguration config, CancellationToken ct)
@@ -50,7 +64,7 @@ public static partial class EmailVerificationEndpoints
 
         if (!response.IsSuccessStatusCode)
         {
-            return Results.BadRequest(new { Message = "Verifikationskoden var fel eller ogiltig." });
+            return Results.StatusCode((int)response.StatusCode);
         }
 
         return await identityClient.ForwardAsync(
