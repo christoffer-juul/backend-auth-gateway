@@ -1,5 +1,4 @@
 ﻿using Auth.Gateway.Dtos;
-using Auth.Gateway.Helpers;
 
 namespace Auth.Gateway.Endpoints;
 
