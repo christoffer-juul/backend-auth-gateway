@@ -11,7 +11,18 @@ public static class UserEndpoints
             .WithTags("Auth");
 
         group.MapGet("/email-status", CheckEmailStatus);
+        group.MapPost("/confirm-email", ConfirmEmail);
         group.MapPost("/set-password", SetPassword);
+    }
+
+    private static async Task<IResult> ConfirmEmail(IdentityApiClient identityClient, HttpContext context, [FromBody] object payload, CancellationToken ct)
+    {
+        return await identityClient.ForwardJsonAsync(
+            context,
+            HttpMethod.Post,
+            "/api/auth/confirm-email",
+            payload,
+            ct);
     }
 
     private static async Task<IResult> CheckEmailStatus(IdentityApiClient identityClient, HttpContext context, [FromQuery] string email, CancellationToken ct)
@@ -26,6 +37,6 @@ public static class UserEndpoints
 
     private static async Task<IResult> SetPassword(IdentityApiClient identityClient, HttpContext context, [FromBody] object payload, CancellationToken ct)
     {
-        return await identityClient.SetPasswordAsync(context, payload, ct);
+        return await identityClient.ForwardJsonAsync(context, HttpMethod.Post, "/api/auth/gateway/set-password", payload, ct);
     }
 }
