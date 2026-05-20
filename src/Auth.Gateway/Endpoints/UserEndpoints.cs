@@ -13,6 +13,9 @@ public static class UserEndpoints
         group.MapGet("/email-status", CheckEmailStatus);
         group.MapPost("/confirm-email", ConfirmEmail);
         group.MapPost("/set-password", SetPassword);
+        group.MapPost("/change-password", ChangePassword);
+
+        //group.MapPost("/set-names", SetNames);
     }
 
     private static async Task<IResult> ConfirmEmail(IdentityApiClient identityClient, HttpContext context, [FromBody] object payload, CancellationToken ct)
@@ -36,7 +39,12 @@ public static class UserEndpoints
     }
 
     private static async Task<IResult> SetPassword(IdentityApiClient identityClient, HttpContext context, [FromBody] object payload, CancellationToken ct)
-    {
-        return await identityClient.ForwardJsonAsync(context, HttpMethod.Post, "/api/auth/gateway/set-password", payload, ct);
-    }
+        => await identityClient.ForwardJsonAsync(context, HttpMethod.Post, "/api/auth/gateway/set-password", payload, ct);
+
+    private static async Task<IResult> ChangePassword(IdentityApiClient identityClient, HttpContext context, [FromBody] object payload, CancellationToken ct)
+        => await identityClient.ForwardJsonAsync(context, HttpMethod.Put, "/api/auth/gateway/change-password", payload, ct);
+
+    // Uppdatera för profile api när den finns
+    //private static async Task<IResult> SetNames(IdentityApiClient identityClient, HttpContext context, [FromBody] object payload, CancellationToken ct)
+    //    => await identityClient.ForwardJsonAsync(context, HttpMethod.Post, "/api/profile/set-names", payload, ct);
 }

@@ -11,6 +11,6 @@ public static class RegisterUserEndpoints
         group.MapPost("/register", RegisterUser);
     }
 
-    private static Task<IResult> RegisterUser(Auth.Gateway.Clients.IdentityApiClient identityClient, HttpContext context, CreateUserRequest request, CancellationToken ct)
-        => identityClient.ForwardJsonAsync(context, HttpMethod.Post, "/api/auth/create", request, ct);
+    private static async Task<IResult> RegisterUser(Clients.IdentityApiClient identityClient, HttpContext context, CreateUserRequest request, CancellationToken ct)
+        => await identityClient.ForwardJsonAsync(context, HttpMethod.Post, "/api/auth/create", request, ct);
 }
