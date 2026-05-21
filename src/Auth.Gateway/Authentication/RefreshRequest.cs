@@ -1,4 +1,4 @@
-﻿namespace Auth.Gateway.Dtos;
+﻿namespace Auth.Gateway.Authentication;
 
 public sealed record RefreshRequest
 (

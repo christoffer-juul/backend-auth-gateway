@@ -1,4 +1,4 @@
-﻿namespace Auth.Gateway.Dtos;
+﻿namespace Auth.Gateway.Identity;
 
 public sealed record CreateUserRequest
 (

@@ -1,6 +1,6 @@
 using System.Net;
 
-namespace Auth.Gateway.Clients;
+namespace Auth.Gateway.EmailVerification;
 
 public class EmailVerificationApiClient
 {
