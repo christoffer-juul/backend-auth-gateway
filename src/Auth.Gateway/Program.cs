@@ -120,10 +120,6 @@ builder.Services.AddAzureClients(clientBuilder =>
         builder.Configuration.GetConnectionString("ServiceBus"));
 });
 
-Console.WriteLine("JWT Issuer: " + builder.Configuration["Jwt:Issuer"]);
-Console.WriteLine("JWT Audience: " + builder.Configuration["Jwt:Audience"]);
-Console.WriteLine("JWT SigningKey: " + builder.Configuration["Jwt:SigningKey"]);
-
 var app = builder.Build();
 
 app.UseCors("All");
