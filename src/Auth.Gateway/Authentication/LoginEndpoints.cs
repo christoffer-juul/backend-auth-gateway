@@ -14,7 +14,7 @@ public static class LoginEndpoints
         group.MapPost("/login", Login);
     }
 
-    private static async Task<IResult> Login(ServiceBusClient serviceBusClient, IConfiguration config, IdentityApiClient identityClient, JwtApiClient jwtClient, HttpContext context, LoginRequest request, ILoggerFactory loggerFactory, CancellationToken ct)
+    private static async Task<IResult> Login(ServiceBusClient serviceBusClient, IConfiguration config, IdentityApiClient identityClient, JwtApiClient jwtClient, HttpContext context, LoginRequest request, CancellationToken ct)
     {
         using var response = await identityClient.CheckEmailConfirmedAsync(request.Email, ct);
 
