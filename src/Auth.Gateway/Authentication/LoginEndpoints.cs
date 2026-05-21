@@ -14,8 +14,10 @@ public static class LoginEndpoints
         group.MapPost("/login", Login);
     }
 
-    private static async Task<IResult> Login(ServiceBusClient serviceBusClient, IConfiguration config, IdentityApiClient identityClient, JwtApiClient jwtClient, HttpContext context, LoginRequest request, CancellationToken ct)
+    private static async Task<IResult> Login(ServiceBusClient serviceBusClient, IConfiguration config, IdentityApiClient identityClient, JwtApiClient jwtClient, HttpContext context, LoginRequest request, ILoggerFactory loggerFactory, CancellationToken ct)
     {
+        var loggerFactoryStuff = context.RequestServices.GetRequiredService<ILoggerFactory>(); 
+        var logger = loggerFactory.CreateLogger("LoginEndpoints");
         using var response = await identityClient.CheckEmailConfirmedAsync(request.Email, ct);
 
         if (response.StatusCode == HttpStatusCode.NotFound)
@@ -46,6 +48,8 @@ public static class LoginEndpoints
         }
 
         using var loginResponse = await identityClient.PostLoginAsync(request.Email, request.Password, ct);
+
+        var body = await loginResponse.Content.ReadAsStringAsync(cancellationToken: ct); logger.LogInformation("Identity login response body: {body}", body); var identityUserLog = System.Text.Json.JsonSerializer.Deserialize<IdentityUserDto>(body, new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
         if (!loginResponse.IsSuccessStatusCode)
         {
