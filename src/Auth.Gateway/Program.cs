@@ -108,7 +108,7 @@ builder.Services
                 IssuerSigningKey =
                     new SymmetricSecurityKey(
                         Encoding.UTF8.GetBytes(
-                            builder.Configuration["Jwt:Key"]!))
+                            builder.Configuration["Jwt:SigningKey"]!))
             };
     });
 
