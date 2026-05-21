@@ -1,11 +1,8 @@
-﻿using Auth.Gateway.Dtos;
-using Microsoft.Net.Http.Headers;
-using System.Net;
-using System.Text;
-using System.Text.Json;
+﻿using Auth.Gateway.EmailVerification;
+using Auth.Gateway.Identity;
 using SameSiteMode = Microsoft.AspNetCore.Http.SameSiteMode;
 
-namespace Auth.Gateway.Endpoints;
+namespace Auth.Gateway.Authentication;
 
 public static class AuthGatewayEndpoints
 {

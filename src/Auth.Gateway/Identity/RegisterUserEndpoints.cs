@@ -1,6 +1,4 @@
-﻿using Auth.Gateway.Dtos;
-
-namespace Auth.Gateway.Endpoints;
+﻿namespace Auth.Gateway.Identity;
 
 public static class RegisterUserEndpoints
 {
@@ -11,6 +9,6 @@ public static class RegisterUserEndpoints
         group.MapPost("/register", RegisterUser);
     }
 
-    private static async Task<IResult> RegisterUser(Clients.IdentityApiClient identityClient, HttpContext context, CreateUserRequest request, CancellationToken ct)
+    private static async Task<IResult> RegisterUser(IdentityApiClient identityClient, HttpContext context, CreateUserRequest request, CancellationToken ct)
         => await identityClient.ForwardJsonAsync(context, HttpMethod.Post, "/api/auth/create", request, ct);
 }

@@ -1,12 +1,10 @@
-﻿using Auth.Gateway.Dtos;
+﻿using Auth.Gateway.Identity;
 using Azure.Messaging.ServiceBus;
 using Microsoft.AspNetCore.Mvc;
 using System.Text;
 using System.Text.Json;
-using Auth.Gateway.Clients;
-using Azure;
 
-namespace Auth.Gateway.Endpoints;
+namespace Auth.Gateway.EmailVerification;
 
 public static partial class EmailVerificationEndpoints
 {

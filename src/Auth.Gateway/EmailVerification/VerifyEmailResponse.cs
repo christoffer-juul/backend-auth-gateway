@@ -1,7 +1,6 @@
-namespace Auth.Gateway.Dtos;
+namespace Auth.Gateway.EmailVerification;
 
 public sealed record VerifyEmailResponse
 (
-    string Email, 
     bool EmailConfirmed
 );

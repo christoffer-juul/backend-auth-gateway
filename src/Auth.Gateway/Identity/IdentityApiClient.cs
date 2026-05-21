@@ -2,7 +2,7 @@
 using System.Text;
 using System.Text.Json;
 
-namespace Auth.Gateway.Clients;
+namespace Auth.Gateway.Identity;
 
 public class IdentityApiClient
 {
@@ -99,5 +99,35 @@ public class IdentityApiClient
         var upstreamPath = $"/api/auth/email-status?email={Uri.EscapeDataString(email)}";
 
         return await _client.GetAsync(upstreamPath, ct);
+    }
+
+    public Task<HttpResponseMessage> SetPasswordAsync(HttpContext context, object body, CancellationToken ct)
+        => SendJsonAsync(context, HttpMethod.Post, "/api/auth/gateway/set-password", body, ct);
+
+    public async Task<HttpResponseMessage> PostLoginAsync(string email, string password, CancellationToken ct)
+    {
+        var payload = new
+        {
+            email = email,
+            password = password
+        };
+        return await _client.PostAsJsonAsync("/api/auth/login", payload, ct);
+    }
+
+    private async Task<HttpResponseMessage> SendJsonAsync<T>(HttpContext context, HttpMethod method, string upstreamPath, T body, CancellationToken ct)
+    {
+        var json = JsonSerializer.Serialize(body);
+        using var content = new StringContent(json, Encoding.UTF8, "application/json");
+        using var upstreamRequest = new HttpRequestMessage(method, upstreamPath)
+        {
+            Content = content
+        };
+
+        CopyRequestHeaders(context, upstreamRequest);
+
+        return await _client.SendAsync(
+            upstreamRequest,
+            HttpCompletionOption.ResponseHeadersRead,
+            ct);
     }
 }
