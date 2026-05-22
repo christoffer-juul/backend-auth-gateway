@@ -47,10 +47,13 @@ public static class LoginEndpoints
 
         using var loginResponse = await identityClient.PostLoginAsync(request.Email, request.Password, ct);
 
-        if (!loginResponse.IsSuccessStatusCode)
+        if (loginResponse.StatusCode == HttpStatusCode.Unauthorized)
         {
-            return Results.StatusCode((int)loginResponse.StatusCode);
+            return Results.Json(new LoginResponse(Success: false, ErrorMessage: "Invalid email or password."), statusCode: StatusCodes.Status401Unauthorized);
         }
+
+        if (!loginResponse.IsSuccessStatusCode)
+            return Results.Problem("Login failed.");
 
         var identityUser = await loginResponse.Content.ReadFromJsonAsync<IdentityUserDto>(cancellationToken: ct);
 
