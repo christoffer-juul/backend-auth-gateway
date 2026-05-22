@@ -57,12 +57,12 @@ public static class LoginEndpoints
 
         var identityUser = await loginResponse.Content.ReadFromJsonAsync<IdentityUserDto>(cancellationToken: ct);
 
-        if (identityUser == null || string.IsNullOrEmpty(identityUser.UserId))
+        if (identityUser == null || string.IsNullOrEmpty(identityUser.Id))
         {
             return Results.Problem("Identity API did not return user info.");
         }
 
-        using var tokenResponse = await jwtClient.GenerateTokenAsync(request.Email, identityUser.UserId, identityUser.Roles, ct);
+        using var tokenResponse = await jwtClient.GenerateTokenAsync(request.Email, identityUser.Id, identityUser.Roles.FirstOrDefault() ?? "user", ct);
 
         if (!tokenResponse.IsSuccessStatusCode)
         {
