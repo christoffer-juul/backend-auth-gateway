@@ -108,8 +108,8 @@ public class IdentityApiClient
     {
         var payload = new
         {
-            email = email,
-            password = password
+            email,
+            password
         };
         return await _client.PostAsJsonAsync("/api/auth/login", payload, ct);
     }
