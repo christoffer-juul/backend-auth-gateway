@@ -9,9 +9,10 @@ public static class CorsConfiguration
             options.AddPolicy("All", policy =>
             {
                 policy
-                    .WithOrigins("*")
+                    .WithOrigins("http://localhost:3000")
                     .AllowAnyHeader()
-                    .AllowAnyMethod();
+                    .AllowAnyMethod()
+                    .AllowCredentials();
             });
         });
 
