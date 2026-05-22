@@ -76,7 +76,16 @@ public static class LoginEndpoints
             return Results.Problem("Failed to read JWT token from response.");
         }
 
-        return Results.Ok(new LoginResponse(Success: true, Token: jwtData.Token));
+        context.Response.Cookies.Append("accessToken", jwtData.Token, new CookieOptions
+        {
+            HttpOnly = true,
+            Secure = true,
+            SameSite = SameSiteMode.None,
+            Expires = DateTime.UtcNow.AddHours(1),
+            Path = "/"
+        });
+
+        return Results.Ok(new LoginResponse(Success: true));
     }
 }
 

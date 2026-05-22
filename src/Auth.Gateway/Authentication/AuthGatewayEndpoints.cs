@@ -20,15 +20,16 @@ public static class AuthGatewayEndpoints
         group.MapPost("/logout", Logout);
     }
 
-    private const string RefreshTokenCookieName = "refreshToken"; // Måste ändras till rätt namn när token service är klar
+    private const string AccessTokenCookieName = "Token";
 
     private static IResult Logout(HttpContext context)
     {
-        context.Response.Cookies.Delete(RefreshTokenCookieName, new CookieOptions
+        context.Response.Cookies.Append(AccessTokenCookieName, "", new CookieOptions
         {
             Path = "/",
-            Secure = true,
+            Expires = DateTimeOffset.UtcNow.AddDays(-1),
             HttpOnly = true,
+            Secure = true,
             SameSite = SameSiteMode.None
         });
 
