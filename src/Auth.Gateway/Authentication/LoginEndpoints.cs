@@ -35,7 +35,7 @@ public static class LoginEndpoints
             return Results.Problem("Failed to read email verification status.");
         }
 
-        if (!verifyResponse.EmailConfirmed)
+        if (!verifyResponse.Confirmed)
         {
             var verificationRequest =
             new RequestCodeRequest(request.Email);
