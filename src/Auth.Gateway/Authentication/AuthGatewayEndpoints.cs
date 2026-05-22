@@ -24,12 +24,11 @@ public static class AuthGatewayEndpoints
 
     private static IResult Logout(HttpContext context)
     {
-        context.Response.Cookies.Append(AccessTokenCookieName, "", new CookieOptions
+        context.Response.Cookies.Delete(AccessTokenCookieName, new CookieOptions
         {
             Path = "/",
-            Expires = DateTimeOffset.UtcNow.AddDays(-1),
-            HttpOnly = true,
             Secure = true,
+            HttpOnly = true,
             SameSite = SameSiteMode.None
         });
 
