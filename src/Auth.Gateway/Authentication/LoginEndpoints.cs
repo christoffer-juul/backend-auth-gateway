@@ -20,7 +20,7 @@ public static class LoginEndpoints
 
         if (response.StatusCode == HttpStatusCode.NotFound)
         {
-            return Results.NotFound();
+            return Results.Problem("Email not found.", statusCode: StatusCodes.Status404NotFound);
         }
 
         if (!response.IsSuccessStatusCode)
