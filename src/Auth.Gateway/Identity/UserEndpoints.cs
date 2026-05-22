@@ -1,5 +1,7 @@
-﻿using Auth.Gateway.Profile;
+﻿using Auth.Gateway.EmailVerification;
+using Auth.Gateway.Profile;
 using Microsoft.AspNetCore.Mvc;
+using System.Net;
 
 namespace Auth.Gateway.Identity;
 
@@ -19,8 +21,41 @@ public static class UserEndpoints
     private static async Task<IResult> ConfirmEmail(IdentityApiClient identityClient, HttpContext context, [FromBody] object payload, CancellationToken ct)
         => await identityClient.ForwardJsonAsync(context, HttpMethod.Post, "/api/auth/confirm-email", payload, ct);
 
-    private static async Task<IResult> CheckEmailStatus(IdentityApiClient identityClient, HttpContext context, [FromQuery] string email, CancellationToken ct)
-        => await identityClient.ForwardAsync(context, HttpMethod.Get, $"/api/auth/email-status?email={Uri.EscapeDataString(email)}", null, ct);
+    private static async Task<IResult> CheckEmailStatus(IdentityApiClient identityClient, [FromQuery] string email, CancellationToken ct)
+    {
+        using var response = await identityClient.CheckEmailConfirmedAsync(email, ct);
+
+        if (response.StatusCode == HttpStatusCode.NotFound)
+        {
+            return Results.Json(
+                new
+                {
+                    success = false,
+                    message = "Invalid email address."
+                },
+                statusCode: StatusCodes.Status404NotFound);
+        }
+
+        if (!response.IsSuccessStatusCode)
+        {
+            return Results.Json(
+                new
+                {
+                    success = false,
+                    message = "Failed to check email status."
+                },
+                statusCode: (int)response.StatusCode);
+        }
+
+        var result = await response.Content.ReadFromJsonAsync<VerifyEmailResponse>(ct);
+
+        if (result is null)
+        {
+            return Results.Problem("Failed to parse email status response.");
+        }
+
+        return Results.Ok(result);
+    }
 
     private static async Task<IResult> SetPassword(IdentityApiClient identityClient, ProfileApiClient profileClient, HttpContext context, [FromBody] SetPasswordRequest request, CancellationToken ct)
     {
