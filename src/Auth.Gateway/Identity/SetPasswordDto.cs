@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace Auth.Gateway.Identity;
 
-public sealed record PasswordDto(
+public sealed record SetPasswordDto(
 
     [property: JsonPropertyName("password")]
 

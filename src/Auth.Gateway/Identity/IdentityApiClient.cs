@@ -104,6 +104,9 @@ public class IdentityApiClient
     public Task<HttpResponseMessage> SetPasswordAsync(HttpContext context, object body, CancellationToken ct)
         => SendJsonAsync(context, HttpMethod.Post, "/api/auth/gateway/set-password", body, ct);
 
+    public Task<HttpResponseMessage> ChangePasswordAsync(HttpContext context, object body, CancellationToken ct)
+    => SendJsonAsync(context, HttpMethod.Put, "/api/auth/gateway/change-password", body, ct);
+
     public async Task<HttpResponseMessage> PostLoginAsync(string email, string password, CancellationToken ct)
     {
         var payload = new

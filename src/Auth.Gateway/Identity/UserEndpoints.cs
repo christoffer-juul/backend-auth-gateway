@@ -2,6 +2,7 @@
 using Auth.Gateway.Profile;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
+using System.Security.Claims;
 
 namespace Auth.Gateway.Identity;
 
@@ -15,7 +16,7 @@ public static class UserEndpoints
         group.MapGet("/email-status", CheckEmailStatus);
         group.MapPost("/confirm-email", ConfirmEmail);
         group.MapPost("/set-password", SetPassword);
-        group.MapPost("/change-password", ChangePassword);
+        group.MapPut("/change-password", ChangePassword);
     }
 
     private static async Task<IResult> ConfirmEmail(IdentityApiClient identityClient, HttpContext context, [FromBody] object payload, CancellationToken ct)
@@ -61,7 +62,7 @@ public static class UserEndpoints
     {
         var passwordResponse = await identityClient.SetPasswordAsync(
             context,
-            new PasswordDto(request.Password),
+            new SetPasswordDto(request.Password),
             ct);
 
         if (!passwordResponse.IsSuccessStatusCode)
@@ -80,6 +81,17 @@ public static class UserEndpoints
             : Results.StatusCode((int)namesResponse.StatusCode);
     }
 
-    private static async Task<IResult> ChangePassword(IdentityApiClient identityClient, HttpContext context, [FromBody] object payload, CancellationToken ct)
-        => await identityClient.ForwardJsonAsync(context, HttpMethod.Put, "/api/auth/gateway/change-password", payload, ct);
+    private static async Task<IResult> ChangePassword(IdentityApiClient identityClient, HttpContext context, [FromBody] ChangePasswordRequest request, CancellationToken ct)
+    {
+        var email = context.User.FindFirst(ClaimTypes.Email)?.Value;
+
+        if (email is null)
+            return Results.Unauthorized();
+
+        var passwordResponse = await identityClient.ChangePasswordAsync(context, new ChangePasswordDto(email, request.CurrentPassword, request.NewPassword), ct);
+
+        return passwordResponse.IsSuccessStatusCode
+            ? Results.Ok()
+            : Results.StatusCode((int)passwordResponse.StatusCode);
+    }
 }
