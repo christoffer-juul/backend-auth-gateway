@@ -14,7 +14,7 @@ public static class AuthGatewayEndpoints
                 "Authentication gateway that forwards requests to the Identity API.");
 
         app.MapLoginEndpoints();
-        app.MapRegisterUserEndpoints();
+        app.MapAdminUserEndpoints();
         app.MapEmailVerificationEndpoints();
         app.MapUserEndpoints();
         group.MapPost("/logout", Logout);
