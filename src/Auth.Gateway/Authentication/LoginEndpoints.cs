@@ -84,7 +84,7 @@ public static class LoginEndpoints
             Path = "/"
         });
 
-        return Results.Ok(new LoginResponse(Success: true));
+        return Results.Ok(new LoginResponse(Success: true, UserId: identityUser.Id));
     }
 }
 
