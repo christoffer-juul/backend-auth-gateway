@@ -18,8 +18,6 @@ public static class UserEndpoints
         group.MapPost("/confirm-email", ConfirmEmail);
         group.MapPost("/set-password", SetPassword);
         group.MapPut("/change-password", ChangePassword);
-
-        group.MapGet("/id", GetId);
     }
 
     private static async Task<IResult> ConfirmEmail(IdentityApiClient identityClient, HttpContext context, [FromBody] object payload, CancellationToken ct)
@@ -96,15 +94,5 @@ public static class UserEndpoints
         return passwordResponse.IsSuccessStatusCode
             ? Results.Ok()
             : Results.StatusCode((int)passwordResponse.StatusCode);
-    }
-
-    private static IResult GetId(HttpContext context)
-    {
-        var userId = context.User.FindFirst("userid")?.Value;
-
-        if (userId is null)
-            return Results.Unauthorized();
-
-        return Results.Ok(new { UserId = userId });
     }
 }
