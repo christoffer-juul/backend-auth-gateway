@@ -1,7 +1,6 @@
 ﻿using Auth.Gateway.EmailVerification;
 using Auth.Gateway.Profile;
 using Microsoft.AspNetCore.Mvc;
-using System.IdentityModel.Tokens.Jwt;
 using System.Net;
 using System.Security.Claims;
 
