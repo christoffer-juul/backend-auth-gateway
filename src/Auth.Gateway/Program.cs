@@ -147,15 +147,9 @@ app.MapAuthGatewayEndpoints();
 
 app.Run();
 
-static void ConfigureApiClient(
-    HttpClient http,
-    string baseUrl,
-    string? apiKey,
-    TimeSpan timeout,
-    string apiKeyHeader = "x-api-key")
+static void ConfigureApiClient(HttpClient http, string baseUrl, string? apiKey, TimeSpan timeout, string apiKeyHeader = "x-api-key")
 {
-    http.BaseAddress =
-        new Uri(baseUrl, UriKind.Absolute);
+    http.BaseAddress = new Uri(baseUrl, UriKind.Absolute);
 
     http.Timeout = timeout;
 
