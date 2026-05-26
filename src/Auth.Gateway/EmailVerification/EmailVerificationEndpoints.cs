@@ -37,7 +37,8 @@ public static partial class EmailVerificationEndpoints
 
         if (!response.IsSuccessStatusCode)
         {
-            return Results.StatusCode((int)response.StatusCode);
+            var body = await response.Content.ReadAsStringAsync(ct);
+            return Results.Problem($"Azure Function returned {response.StatusCode}: {body}");
         }
 
         return await identityClient.ForwardAsync(
