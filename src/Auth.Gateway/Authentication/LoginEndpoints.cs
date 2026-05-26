@@ -35,7 +35,7 @@ public static class LoginEndpoints
 
         if (verifyResponse is null)
         {
-            return Results.Problem("Failed to read email verification status.");
+            return Results.Problem($"Failed to read email verification status. Raw: {rawBody}");
         }
 
         if (!verifyResponse.Confirmed)
