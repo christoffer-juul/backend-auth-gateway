@@ -2,6 +2,7 @@
 using Auth.Gateway.Identity;
 using Azure.Messaging.ServiceBus;
 using System.Net;
+using System.Text.Json;
 
 namespace Auth.Gateway.Authentication;
 
@@ -28,7 +29,9 @@ public static class LoginEndpoints
             return Results.StatusCode((int)response.StatusCode);
         }
 
-        var verifyResponse = await response.Content.ReadFromJsonAsync<VerifyEmailResponse>(ct);
+        var rawBody = await response.Content.ReadAsStringAsync(ct);
+        Console.WriteLine($"CheckEmailConfirmed response: {rawBody}");
+        var verifyResponse = JsonSerializer.Deserialize<VerifyEmailResponse>(rawBody);
 
         if (verifyResponse is null)
         {
