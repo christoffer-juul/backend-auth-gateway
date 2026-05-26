@@ -14,8 +14,8 @@ public static class AdminUserEndpoints
     }
 
     private static async Task<IResult> CreateUser(IdentityApiClient identityClient, HttpContext context, CreateUserRequest request, CancellationToken ct)
-        => await identityClient.ForwardJsonAsync(context, HttpMethod.Post, "/api/auth/create", request, ct);
+        => await identityClient.ForwardJsonAsync(context, HttpMethod.Post, "/api/admin/users", request, ct);
 
     private static async Task<IResult> DeleteUser(IdentityApiClient identityClient, HttpContext context, [FromRoute] string id, CancellationToken ct)
-        => await identityClient.ForwardAsync(context, HttpMethod.Delete, $"/api/auth/users/{id}", null, ct);
+        => await identityClient.ForwardAsync(context, HttpMethod.Delete, $"/api/admin/users/{id}", null, ct);
 }

@@ -15,6 +15,6 @@ public class EmailVerificationApiClient
     {
         var upstreamPath = "/api/VerifyCode";
 
-        return await _client.PostAsJsonAsync(upstreamPath, new { email = email, code = code }, ct);
+        return await _client.PostAsJsonAsync(upstreamPath, new { email, code }, ct);
     }
 }

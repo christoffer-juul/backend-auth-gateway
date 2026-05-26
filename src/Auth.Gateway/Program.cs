@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using System.Security.Claims;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -108,7 +109,9 @@ builder.Services
                 IssuerSigningKey =
                     new SymmetricSecurityKey(
                         Encoding.UTF8.GetBytes(
-                            builder.Configuration["Jwt:SigningKey"]!))
+                            builder.Configuration["Jwt:SigningKey"]!)),
+
+                RoleClaimType = ClaimTypes.Role
             };
     });
 
@@ -126,6 +129,16 @@ app.UseCors("All");
 
 app.UseHttpsRedirection();
 
+app.Use(async (context, next) =>
+{
+    var token = context.Request.Cookies["Token"];
+    if (!string.IsNullOrEmpty(token))
+    {
+        context.Request.Headers.Authorization = $"Bearer {token}";
+    }
+    await next();
+});
+
 app.UseAuthentication();
 app.UseAuthorization();
 
@@ -134,15 +147,9 @@ app.MapAuthGatewayEndpoints();
 
 app.Run();
 
-static void ConfigureApiClient(
-    HttpClient http,
-    string baseUrl,
-    string? apiKey,
-    TimeSpan timeout,
-    string apiKeyHeader = "x-api-key")
+static void ConfigureApiClient(HttpClient http, string baseUrl, string? apiKey, TimeSpan timeout, string apiKeyHeader = "x-api-key")
 {
-    http.BaseAddress =
-        new Uri(baseUrl, UriKind.Absolute);
+    http.BaseAddress = new Uri(baseUrl, UriKind.Absolute);
 
     http.Timeout = timeout;
 

@@ -40,10 +40,14 @@ public static class LoginEndpoints
 
         if (!verifyResponse.Confirmed)
         {
-            var verificationRequest =
-            new RequestCodeRequest(request.Email);
-
-            await EmailVerificationEndpoints.RequestCode(serviceBusClient, verificationRequest, config, ct);
+            try
+            {
+                await EmailVerificationEndpoints.RequestCode(serviceBusClient, new RequestCodeRequest(request.Email), config, ct);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Failed to send verification code to {request.Email}: {ex.Message}");
+            }
 
             return Results.Unauthorized();
         }

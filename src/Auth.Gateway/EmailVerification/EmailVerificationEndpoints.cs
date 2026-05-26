@@ -10,7 +10,7 @@ public static partial class EmailVerificationEndpoints
 {
     public static void MapEmailVerificationEndpoints(this IEndpointRouteBuilder app)
     {
-        var group = app.MapGroup("/api")
+        var group = app.MapGroup("/api/auth/email")
             .WithTags("EmailVerification");
 
         group.MapPost("/request-code", RequestCode);
