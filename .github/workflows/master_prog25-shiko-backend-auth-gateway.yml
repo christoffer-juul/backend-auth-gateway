@@ -1,7 +1,7 @@
 # Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
 # More GitHub Actions for Azure: https://github.com/Azure/actions
 
-name: Build and deploy ASP.Net Core app to Azure Web App - prog25-shiko-backend-auth-gateway
+name: Build and deploy ASP.Net Core app to Azure Web App - shiko-team1-backend-auth-gateway
 
 on:
   push:
@@ -49,7 +49,7 @@ jobs:
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
         with:
-          app-name: 'prog25-shiko-backend-auth-gateway'
+          app-name: 'shiko-team1-backend-auth-gateway'
           slot-name: 'Production'
           package: .
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_E01FD0524C2F4760B420AEBFCF948819 }}
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_SHIKO_TEAM1 }}

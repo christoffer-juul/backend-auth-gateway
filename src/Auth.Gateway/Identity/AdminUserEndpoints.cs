@@ -6,7 +6,8 @@ public static class AdminUserEndpoints
 {
     public static void MapAdminUserEndpoints(this IEndpointRouteBuilder app)
     {
-        var group = app.MapGroup("/api/admin/testar");
+        var group = app.MapGroup("/api/admin")
+            .RequireAuthorization(policy => policy.RequireRole("admin"));
 
         group.MapPost("/users", CreateUser);
         group.MapDelete("/users/{id}", DeleteUser);
