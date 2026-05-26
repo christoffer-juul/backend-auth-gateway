@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using System.Security.Claims;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -108,7 +109,9 @@ builder.Services
                 IssuerSigningKey =
                     new SymmetricSecurityKey(
                         Encoding.UTF8.GetBytes(
-                            builder.Configuration["Jwt:SigningKey"]!))
+                            builder.Configuration["Jwt:SigningKey"]!)),
+
+                RoleClaimType = ClaimTypes.Role
             };
     });
 
