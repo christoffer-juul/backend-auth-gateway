@@ -1,4 +1,5 @@
 using System.Net;
+using System.Text.Json;
 
 namespace Auth.Gateway.EmailVerification;
 
@@ -13,12 +14,14 @@ public class EmailVerificationApiClient
 
     public async Task<HttpResponseMessage> VerifyCodeAsync(string email, string code, CancellationToken ct)
     {
-        var upstreamPath = "/api/VerifyCode";
+        var upstreamPath = "api/VerifyCode";
 
-        Console.WriteLine($"Calling Azure Function: {_client.BaseAddress}{upstreamPath}");
-        Console.WriteLine($"With email: {email}, code: {code}");
-        Console.WriteLine($"Function key header present: {_client.DefaultRequestHeaders.Contains("x-functions-key")}");
+        var payload = new
+        {
+            email,
+            code
+        };
 
-        return await _client.PostAsJsonAsync(upstreamPath, new { email, code }, ct);
+        return await _client.PostAsJsonAsync(upstreamPath, payload, ct);
     }
 }

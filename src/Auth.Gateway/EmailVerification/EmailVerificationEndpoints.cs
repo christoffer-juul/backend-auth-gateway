@@ -14,7 +14,7 @@ public static partial class EmailVerificationEndpoints
             .WithTags("EmailVerification");
 
         group.MapPost("/request-code", RequestCode);
-        group.MapPost("/VerifyCode", VerifyCode);
+        group.MapPost("/verify-code", VerifyCode);
     }
 
     public static async Task<IResult> RequestCode(ServiceBusClient serviceBusClient, [FromBody] RequestCodeRequest request, IConfiguration config, CancellationToken ct)
@@ -31,7 +31,7 @@ public static partial class EmailVerificationEndpoints
         return Results.Ok();
     }
 
-    private static async Task<IResult> VerifyCode(EmailVerificationApiClient emailClient, [FromBody] VerifyCodeRequest request, IdentityApiClient identityClient, HttpContext context, CancellationToken ct)
+    private static async Task<IResult> VerifyCode([FromBody] VerifyCodeRequest request, EmailVerificationApiClient emailClient, IdentityApiClient identityClient, HttpContext context, CancellationToken ct)
     {
         using var response = await emailClient.VerifyCodeAsync(request.Email, request.Code, ct);
 
@@ -41,11 +41,16 @@ public static partial class EmailVerificationEndpoints
             return Results.Problem($"Azure Function returned {response.StatusCode}: {body}");
         }
 
+        var content = JsonContent.Create(new
+        {
+            email = request.Email
+        });
+
         return await identityClient.ForwardAsync(
-            context, 
-            HttpMethod.Post, 
-            $"/confirm-email?email={Uri.EscapeDataString(request.Email)}", 
-            null, 
+            context,
+            HttpMethod.Post,
+            "/api/auth/confirm-email",
+            content,
             ct);
     }
 }

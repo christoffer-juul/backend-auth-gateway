@@ -30,7 +30,6 @@ public static class LoginEndpoints
         }
 
         var rawBody = await response.Content.ReadAsStringAsync(ct);
-        Console.WriteLine($"CheckEmailConfirmed response: {rawBody}");
         var verifyResponse = JsonSerializer.Deserialize<VerifyEmailResponse>(rawBody);
 
         if (verifyResponse is null)
@@ -40,14 +39,7 @@ public static class LoginEndpoints
 
         if (!verifyResponse.Confirmed)
         {
-            try
-            {
-                await EmailVerificationEndpoints.RequestCode(serviceBusClient, new RequestCodeRequest(request.Email), config, ct);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Failed to send verification code to {request.Email}: {ex.Message}");
-            }
+            await EmailVerificationEndpoints.RequestCode(serviceBusClient, new RequestCodeRequest(request.Email), config, ct);
 
             return Results.Unauthorized();
         }
@@ -78,7 +70,7 @@ public static class LoginEndpoints
 
         var jwtData = await tokenResponse.Content.ReadFromJsonAsync<GenerateJwtResponse>(cancellationToken: ct);
 
-        if(jwtData is null)
+        if (jwtData is null)
         {
             return Results.Problem("Failed to read JWT token from response.");
         }
