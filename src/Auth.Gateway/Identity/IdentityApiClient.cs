@@ -101,6 +101,18 @@ public class IdentityApiClient
         return await _client.GetAsync(upstreamPath, ct);
     }
 
+    public async Task<HttpResponseMessage> ConfirmEmailAsync(string email, CancellationToken ct)
+    {
+        var upstreamPath = "api/auth/confirm-email";
+
+        var payload = new
+        {
+            email
+        };
+
+        return await _client.PostAsJsonAsync(upstreamPath, payload, ct);
+    }
+
     public Task<HttpResponseMessage> SetPasswordAsync(HttpContext context, object body, CancellationToken ct)
         => SendJsonAsync(context, HttpMethod.Post, "/api/auth/gateway/set-password", body, ct);
 
