@@ -58,27 +58,16 @@ public static class UserEndpoints
         return Results.Ok(result);
     }
 
-    private static async Task<IResult> SetPassword(IdentityApiClient identityClient, ProfileApiClient profileClient, HttpContext context, [FromBody] SetPasswordRequest request, CancellationToken ct)
+    private static async Task<IResult> SetPassword(IdentityApiClient identityClient, HttpContext context, [FromBody] SetPasswordRequest request, CancellationToken ct)
     {
-        var passwordResponse = await identityClient.SetPasswordAsync(
+        using var passwordResponse = await identityClient.SetPasswordAsync(
             context,
             new SetPasswordDto(request.Password),
             ct);
 
-        if (!passwordResponse.IsSuccessStatusCode)
-        {
-            return Results.StatusCode((int)passwordResponse.StatusCode);
-        }
-
-        var namesResponse = await profileClient.SetNamesAsync(new ProfileDto
-        {
-            FirstName = request.FirstName,
-            LastName = request.LastName
-        }, ct);
-
-        return namesResponse.IsSuccessStatusCode
+        return passwordResponse.IsSuccessStatusCode
             ? Results.Ok()
-            : Results.StatusCode((int)namesResponse.StatusCode);
+            : Results.StatusCode((int)passwordResponse.StatusCode);
     }
 
     private static async Task<IResult> ChangePassword(IdentityApiClient identityClient, HttpContext context, [FromBody] ChangePasswordRequest request, CancellationToken ct)
