@@ -62,7 +62,7 @@ public static class UserEndpoints
     {
         using var passwordResponse = await identityClient.SetPasswordAsync(
             context,
-            new SetPasswordDto(request.Password),
+            new SetPasswordDto(request.Email, request.Password),
             ct);
 
         if (!passwordResponse.IsSuccessStatusCode)
