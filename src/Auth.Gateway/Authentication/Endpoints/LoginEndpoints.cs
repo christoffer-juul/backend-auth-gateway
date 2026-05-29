@@ -2,6 +2,7 @@
 using Auth.Gateway.Authentication.Requests;
 using Auth.Gateway.Authentication.Responses;
 using Auth.Gateway.EmailVerification.Endpoints;
+using Auth.Gateway.EmailVerification.Requests;
 using Auth.Gateway.EmailVerification.Responses;
 using Auth.Gateway.Identity.Client;
 using Auth.Gateway.Identity.Dtos;
