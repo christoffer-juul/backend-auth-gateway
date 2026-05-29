@@ -84,9 +84,26 @@ public static class UserEndpoints
             LastName = request.LastName
         }, ct);
 
-        return namesResponse.IsSuccessStatusCode
-            ? Results.Ok()
-            : Results.StatusCode((int)namesResponse.StatusCode);
+        if (namesResponse.IsSuccessStatusCode)
+        {
+            return Results.Ok(new { status = "Ok" });
+        }
+
+        var status = namesResponse.StatusCode switch
+        {
+            HttpStatusCode.NotFound => "NotFound",
+            HttpStatusCode.Conflict => "Conflict",
+            HttpStatusCode.BadRequest => "BadRequest",
+            _ => "Problem"
+        };
+
+        return Results.Json(
+            new
+            {
+                status,
+                error = "Failed to set names"
+            },
+            statusCode: (int)namesResponse.StatusCode);
     }
 
     private static async Task<IResult> ChangePassword(IdentityApiClient identityClient, HttpContext context, [FromBody] ChangePasswordRequest request, CancellationToken ct)
