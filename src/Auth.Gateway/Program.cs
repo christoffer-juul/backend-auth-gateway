@@ -1,8 +1,9 @@
-using Auth.Gateway.Authentication;
-using Auth.Gateway.EmailVerification;
-using Auth.Gateway.Identity;
+using Auth.Gateway;
+using Auth.Gateway.Authentication.Client;
+using Auth.Gateway.EmailVerification.Client;
+using Auth.Gateway.Identity.Client;
 using Auth.Gateway.OpenApi;
-using Auth.Gateway.Profile;
+using Auth.Gateway.Profile.Client;
 using Auth.Gateway.Security;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Azure;
