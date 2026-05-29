@@ -70,8 +70,16 @@ public static class UserEndpoints
             return Results.StatusCode((int)passwordResponse.StatusCode);
         }
 
+        var passwordResult = await passwordResponse.Content.ReadFromJsonAsync<SetPasswordResponse>(ct);
+
+        if (passwordResult?.UserId is null)
+        {
+            return Results.Problem("Failed to retrieve user ID after setting password.");
+        }
+
         using var namesResponse = await profileClient.SetNamesAsync(new ProfileDto
         {
+            UserId = passwordResult.UserId,
             FirstName = request.FirstName,
             LastName = request.LastName
         }, ct);

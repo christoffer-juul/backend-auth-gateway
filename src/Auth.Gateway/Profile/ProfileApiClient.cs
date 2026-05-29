@@ -20,5 +20,5 @@ public class ProfileApiClient
     }
 
     public Task<HttpResponseMessage> SetNamesAsync(ProfileDto body, CancellationToken ct)
-        => ForwardJsonAsync(HttpMethod.Post, "/api/profile/names", body, ct);
+        => ForwardJsonAsync(HttpMethod.Post, "/api/profiles/names", body, ct);
 }
